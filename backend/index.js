@@ -8,6 +8,7 @@ import policeOfficerRoutes from "./routes/policeOfficerRoutes.js";
 import drugPreventionAuthorityRoutes from "./routes/drugPreventionAuthorityRoutes.js";
 import rehabCentreRoutes from "./routes/rehabCentreRoutes.js";
 import courtRoutes from "./routes/courtRoutes.js";
+import authRoutes from "./routes/authRoutes.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use(cors());
 
 app.use('/case', caseRoutes);
 app.use('/report', reportRoutes);
+app.use('/auth', authRoutes);
 app.use('/police-officer', policeOfficerRoutes);
 app.use('/drug-prevention-authority', drugPreventionAuthorityRoutes);
 app.use('/court', courtRoutes);
