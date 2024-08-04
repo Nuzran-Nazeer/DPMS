@@ -43,6 +43,7 @@ const drugPreventionAuthoritySchema = new mongoose.Schema(
         toJSON: {
             transform: function(doc, ret) {
                 delete ret.__v; 
+                delete ret.password; 
                 return ret;
             }
         }

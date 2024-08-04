@@ -42,7 +42,8 @@ const rehabCentreSchema = new mongoose.Schema(
         timestamps: {createdAt: true, updatedAt: false},
         toJSON: {
             transform: function(doc, ret) {
-                delete ret.__v; 
+                delete ret.__v;
+                delete ret.password; 
                 return ret;
             }
         }
