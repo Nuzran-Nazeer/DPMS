@@ -1,9 +1,15 @@
-import express, { request, response } from "express";
+import express from "express";
 import {PORT, MongoDBURL} from "./config.js";
 import mongoose from "mongoose";
-import caseRoutes from "./routes/caseRoutes.js";
 import cors from "cors";
+import caseRoutes from "./routes/caseRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import policeOfficerRoutes from "./routes/policeOfficerRoutes.js";
+import drugPreventionAuthorityRoutes from "./routes/drugPreventionAuthorityRoutes.js";
+import rehabCentreRoutes from "./routes/rehabCentreRoutes.js";
+import courtRoutes from "./routes/courtRoutes.js";
+import dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 
@@ -13,6 +19,11 @@ app.use(cors());
 
 app.use('/case', caseRoutes);
 app.use('/report', reportRoutes);
+app.use('/police-officer', policeOfficerRoutes);
+app.use('/drug-prevention-authority', drugPreventionAuthorityRoutes);
+app.use('/court', courtRoutes);
+app.use('/rehab-centre', rehabCentreRoutes);
+
 
 mongoose
 .connect(MongoDBURL)

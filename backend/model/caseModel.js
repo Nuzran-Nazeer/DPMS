@@ -50,7 +50,7 @@ const caseSchema = new mongoose.Schema(
         timestamps: {createdAt: true, updatedAt: false},
         toJSON: {
             transform: function(doc, ret) {
-                delete ret.__v; // Exclude the __v field
+                delete ret.__v; 
                 return ret;
             }
         }
