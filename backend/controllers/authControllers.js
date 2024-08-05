@@ -4,12 +4,14 @@ import { PoliceOfficer } from "../model/policeOfficerModel.js";
 import { DrugPreventionAuthority } from "../model/drugPreventionAuthorityModel.js";
 import { Court } from "../model/courtModel.js";
 import { RehabCentre } from "../model/rehabCentreModel.js";
+import { Admin } from "../model/adminModel.js";
 
 const userModels = {
     PoliceOfficer,
     DrugPreventionAuthority,
     Court,
-    RehabCentre
+    RehabCentre,
+    Admin
 }
 
 // Register Dynamic Users
