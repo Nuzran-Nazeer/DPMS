@@ -9,6 +9,7 @@ import drugPreventionAuthorityRoutes from "./routes/drugPreventionAuthorityRoute
 import rehabCentreRoutes from "./routes/rehabCentreRoutes.js";
 import courtRoutes from "./routes/courtRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
+import adminRoutes from "./routes/adminRoutes.js";
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/police-officer', policeOfficerRoutes);
 app.use('/drug-prevention-authority', drugPreventionAuthorityRoutes);
 app.use('/court', courtRoutes);
 app.use('/rehab-centre', rehabCentreRoutes);
+app.use('/admin', adminRoutes);
 
 
 mongoose

@@ -20,3 +20,15 @@ export const verifyToken = async (request, response, next) =>{
         response.status(500).send({message:error.message});
     }
 }
+
+export const verifyAdmin = async (request, response, next)=>{
+    try {
+        if(!request.user || !request.user.role !== "Admin"){
+            return response.status(403).send("Admin Access only");
+        }
+        next();
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({message:error.message});
+    }
+}
