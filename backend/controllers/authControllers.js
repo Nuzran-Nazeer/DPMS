@@ -18,7 +18,12 @@ const userModels = {
 
 export const registerUser = async (request, response)=>{
     try {
-        const {role, ...userData } = request.body;
+
+        const { role, ...userData } = request.body;
+
+        console.log('Parsed role:', role);
+        console.log('Parsed userData:', userData); // Debug log
+
         if (!role || !userModels[role]){
             return response.status(400).send({
                 message: "Invalid User Role",
@@ -39,9 +44,18 @@ export const registerUser = async (request, response)=>{
         }
         
         const registerUser = await UserModel.create(userData);
-        return response.status(201).json(registerUser);
+        return response.status(201).json({ message: 'Registration successful!', user: registerUser });
     } catch (error) {
-        console.log(error.message);
+        console.log("Error :", error.message);
+        if (error.code === 11000) {
+           
+            const duplicateField = Object.keys(error.keyPattern)[0];
+
+            // Capitalize the first letter of the duplicate field
+            const capitalizedField = duplicateField.charAt(0).toUpperCase() + duplicateField.slice(1);
+
+            return response.status(400).json({ message: `${capitalizedField} already exists. Please use a different one.` });
+        }
         response.status(500).send({message:error.message}); 
     }
 };
