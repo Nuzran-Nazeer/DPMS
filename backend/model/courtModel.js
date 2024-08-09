@@ -11,10 +11,6 @@ const courtSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
-        courtName:{
-            type: String,
-            required: true
-        },
         contactNumber:{
             type: String,
             required: true
