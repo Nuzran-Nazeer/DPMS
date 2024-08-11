@@ -64,6 +64,41 @@ export const getReportbyID = async (request, response)=>{
     }
 };
 
+//Update Report
+
+
+export const updateReport = async (request, response)=>{
+    try {
+        if (
+            !request.body.title ||
+            !request.body.description ||
+            !request.body.drugType ||
+            !request.body.incidentDate ||
+            !request.body.location  
+        ){
+            return response.status(400).send({
+                message: "Required details must be filled",
+            });
+        }
+        request.body.updatedAt = new Date();
+        const {id} = request.params;
+        const updatedReport = await Report.findByIdAndUpdate(id, request.body);
+
+        if (!updatedReport){
+            return response.status(404).send({
+                message: "Report not found" 
+            })
+        }
+        return response.status(200).send({
+            message: "Report updated successfully"
+        });
+    } catch (error) {
+        console.log(error.message);
+        response.status(500).send({message:error.message});
+        
+    }
+};
+
 //Delete report by ID
 
 export const deleteReport = async (request, response)=>{

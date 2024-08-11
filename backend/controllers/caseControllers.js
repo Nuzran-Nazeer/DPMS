@@ -5,6 +5,7 @@ import { Case } from "../model/caseModel.js";
 export const createCase = async (request,response)=>{
     try {
         if (
+            !request.body.caseNo ||
             !request.body.title ||
             !request.body.description ||
             !request.body.officerHandling ||
@@ -17,8 +18,15 @@ export const createCase = async (request,response)=>{
             return response.status(400).send({
                 message: 'Fill all the required fields',
             });
+            
+        }
+        const { caseNo } = request.body;
+        const existingCase = await Case.findOne({ caseNo });
+        if (existingCase) {
+            return response.status(409).json({ message: 'Case number already exists' });
         }
         const newCaseRecord = {
+            caseNo: request.body.caseNo,
             title: request.body.title,
             description: request.body.description,
             officerHandling: request.body.officerHandling,
@@ -28,6 +36,8 @@ export const createCase = async (request,response)=>{
             district: request.body.district,
             religion: request.body.religion,
         };
+        
+        
         const createdcase = await Case.create(newCaseRecord);
         return response.status(201).send(createdcase);
     } catch (error) {
@@ -103,3 +113,25 @@ export const updateCase = async (request, response)=>{
         
     }
 };
+
+
+//Delete Case
+
+export const deleteCase = async (request, response)=>{
+    try {
+  
+      const {id} = request.params;
+      const result = await Case.findByIdAndDelete(id);
+  
+      if (!result){
+        return response.status(404).json({message: "Case not found"});
+      }
+  
+      return response.status(200).send({message: "Case deleted successfully"});
+      
+    } catch (error) {
+      console.log(error.message)
+      response.status(500).send({message:error.message});
+      
+    }
+  };
