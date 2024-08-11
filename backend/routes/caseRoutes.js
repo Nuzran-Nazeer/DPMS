@@ -1,5 +1,5 @@
 import express from "express";
-import { createCase, getAllCases, getCasebyID, updateCase } from "../controllers/caseControllers.js";
+import { createCase, deleteCase, getAllCases, getCasebyID, updateCase } from "../controllers/caseControllers.js";
 
 const router = express.Router();
 
@@ -10,5 +10,7 @@ router.get('/', getAllCases)
 router.get('/:id', getCasebyID)
 
 router.put('/:id', updateCase)
+
+router.delete('/:id', deleteCase)
 
 export default router;
