@@ -1,23 +1,41 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineEdit } from "react-icons/ai";
 import { BsInfoCircle } from 'react-icons/bs';
 import { MdOutlineDelete, MdOutlineAddBox } from "react-icons/md";
+import { jwtDecode } from "jwt-decode";
+
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState("All");
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); // Redirect if no token found
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.role !== "Admin") {
+      navigate("/unauthorized"); // Redirect if not Admin
+      return;
+    }
+
+    // Fetch users if authorized
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8003/admin/users");
+        const response = await axios.get("http://localhost:8003/admin/users", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setUsers(response.data.data);
-        setFilteredUsers(response.data.data); // Initialize with all users
+        setFilteredUsers(response.data.data);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
@@ -26,7 +44,7 @@ const UserManagement = () => {
     };
 
     fetchUsers();
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const filter =
@@ -89,6 +107,7 @@ const UserManagement = () => {
             <tr className="bg-gray-200">
               <th className="border border-slate-600 rounded-md">Name</th>
               <th className="border border-slate-600 rounded-md">Email</th>
+              <th className="border border-slate-600 rounded-md">Contact Number</th>
               <th className="border border-slate-600 rounded-md">Role</th>
               <th className="border border-slate-600 rounded-md">Actions</th>
             </tr>
@@ -101,6 +120,9 @@ const UserManagement = () => {
                 </td>
                 <td className="border border-slate-700 rounded-md text-center">
                   {user.email}
+                </td>
+                <td className="border border-slate-700 rounded-md text-center">
+                  {user.contactNumber}
                 </td>
                 <td className="border border-slate-700 rounded-md text-center">
                   {user.role}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const EditReport = () => {
   const { id } = useParams();
@@ -17,9 +18,22 @@ const EditReport = () => {
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); // Redirect if no token found
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.role !== "Admin") {
+      navigate("/unauthorized"); // Redirect if not Admin
+      return;
+    }
     const fetchReportData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8003/report/${id}`);
+        const response = await axios.get(`http://localhost:8003/report/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         setFormData(response.data);
       } catch (error) {
         console.error("Error fetching report data:", error);

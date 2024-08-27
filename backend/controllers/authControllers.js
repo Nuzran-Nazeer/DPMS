@@ -21,8 +21,7 @@ export const registerUser = async (request, response)=>{
 
         const { role, ...userData } = request.body;
 
-        console.log('Parsed role:', role);
-        console.log('Parsed userData:', userData); // Debug log
+        
 
         if (!role || !userModels[role]){
             return response.status(400).send({
@@ -64,28 +63,34 @@ export const registerUser = async (request, response)=>{
 
 export const login = async (request, response) => {
     try {
-        const { role, email, password } = request.body;
+        const { email, password } = request.body;
 
-        if (!role || !userModels[role]  ){
-            return response.status(400).json({msg: "Invalid User Role. "});
+        // Search across all user models to find the user by email
+        let user = null;
+        let role = null;
+
+        for (const key in userModels) {
+            user = await userModels[key].findOne({ email: email });
+            if (user) {
+                role = key;
+                break;
+            }
         }
 
-        const UserModel = userModels[role];
-        const user = await UserModel.findOne({ email: email});
-
-        if (!user){
-            return response.status(400).json({msg: "User does not exist. "});
+        if (!user) {
+            return response.status(400).json({ msg: "User does not exist." });
         }
 
         const isPWMatch = await bcrypt.compare(password, user.password);
 
-        if (!isPWMatch){
-            return response.status(400).json({msg: "Invalid Password"});
+        if (!isPWMatch) {
+            return response.status(400).json({ msg: "Invalid Password" });
         }
-        const token = jwt.sign({id: user._id, role: role }, process.env.JWT_SECRET);
-        response.status(200).json({token, user});
+
+        const token = jwt.sign({ id: user._id, role: role }, process.env.JWT_SECRET,{ expiresIn: '1h' });
+        response.status(200).json({ token, user });
     } catch (error) {
         console.log(error.message);
-        response.status(500).send({message:error.message});
+        response.status(500).send({ message: error.message });
     }
-}
+};
