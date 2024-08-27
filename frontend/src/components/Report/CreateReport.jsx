@@ -50,7 +50,7 @@ const CreateReport = () => {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      <div className="border-2 border-sky-400 rounded-xl p-4">
+      <div className=" p-4">
         <h1 className="text-4xl font-bold mb-4 text-center">Submit a Report</h1>
         <form onSubmit={handleSubmit} className="w-full max-w-md bg-white p-8 border rounded">
           {error && <p className="text-red-500 mb-4">{error}</p>}

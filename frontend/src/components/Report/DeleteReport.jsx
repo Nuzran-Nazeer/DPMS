@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
+import { jwtDecode } from "jwt-decode";
 
 const DeleteReport = () => {
   const [loading, setLoading] = useState(false);
@@ -8,9 +9,25 @@ const DeleteReport = () => {
   const { id } = useParams();
 
   const handleDeleteReport = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login"); // Redirect if no token found
+      return;
+    }
+
+    const decodedToken = jwtDecode(token);
+    if (decodedToken.role !== "Admin") {
+      navigate("/unauthorized"); // Redirect if not Admin
+      return;
+    }
     setLoading(true);
     axios
-      .delete(`http://localhost:8003/report/${id}`)
+      .delete(`http://localhost:8003/report/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
       .then(() => {
         setLoading(false);
         console.log('Report deleted successfully');

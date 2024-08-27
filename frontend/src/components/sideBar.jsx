@@ -1,17 +1,47 @@
 import React from 'react';
 import { FaUsers, FaGavel, FaFileAlt } from 'react-icons/fa'; 
 
-const Sidebar = ({ setActiveSection }) => {
-  const menuItems = [
-    { label: 'Case Management', icon: <FaGavel />, section: 'caseManagement' },
-    { label: 'User Management', icon: <FaUsers />, section: 'userManagement' },
-    { label: 'Report Management', icon: <FaFileAlt />, section: 'reportManagement' },
-  ];
+const Sidebar = ({ userRole, setActiveSection }) => {
+  const getMenuItems = () => {
+    switch (userRole) {
+      case 'Admin':
+        return [
+          { label: 'Case Management', icon: <FaGavel />, section: 'caseManagement' },
+          { label: 'User Management', icon: <FaUsers />, section: 'userManagement' },
+          { label: 'Report Management', icon: <FaFileAlt />, section: 'reportManagement' },
+        ];
+      case 'PoliceOfficer':
+        return [
+          { label: 'Case Management', icon: <FaGavel />, section: 'caseManagement' },
+          { label: 'Report Management', icon: <FaFileAlt />, section: 'reportManagement' },
+        ];
+      case 'DrugPreventionAuthority':
+        return [
+          { label: 'Case Management', icon: <FaGavel />, section: 'caseManagement' },
+          { label: 'Report Management', icon: <FaFileAlt />, section: 'reportManagement' },
+        ];
+      case 'Court':
+        return [
+          { label: 'Case Management', icon: <FaGavel />, section: 'caseManagement' },
+          { label: 'Report Management', icon: <FaFileAlt />, section: 'reportManagement' },
+        ];
+      case 'RehabCentre':
+        return [
+          { label: 'Case Management', icon: <FaGavel />, section: 'caseManagement' },
+        ];
+      default:
+        return [];
+    }
+  };
+
+  const menuItems = getMenuItems();
 
   return (
-    <div className="w-64 bg-gray-800 text-white h-screen flex flex-col">
-      <div className="p-6 text-2xl font-bold border-b border-gray-700">Admin Dashboard</div>
-      <ul className="flex-grow space-y-2 mt-4">
+    <div className="w-64 bg-gray-800 text-white h-screen fixed top-16 left-0 z-10 flex flex-col">
+      <div className="p-6 text-2xl font-bold border-b border-gray-700">
+        {userRole} Dashboard
+      </div>
+      <ul className="flex-grow mt-4">
         {menuItems.map((item, index) => (
           <li key={index}>
             <button
