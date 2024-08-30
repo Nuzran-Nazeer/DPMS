@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useParams } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 
-const EditReport = () => {
-  const { id } = useParams();
+const EditReport = ({ id, setIsOpen }) => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -19,16 +16,6 @@ const EditReport = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login"); // Redirect if no token found
-      return;
-    }
-
-    const decodedToken = jwtDecode(token);
-    if (decodedToken.role !== "Admin") {
-      navigate("/unauthorized"); // Redirect if not Admin
-      return;
-    }
     const fetchReportData = async () => {
       try {
         const response = await axios.get(`http://localhost:8003/report/${id}`, {
@@ -64,71 +51,87 @@ const EditReport = () => {
         error.response?.data?.message ||
           "An error occurred while updating the report."
       );
+    } finally {
+      setIsOpen(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="border-2 border-sky-400 rounded-xl p-4">
-        <h1 className="text-4xl font-bold mb-4 text-center">Edit Report</h1>
+    <div className="justify-center items-center px-4">
+      <div className="w-full max-w-md">
+        <h1 className="text-3xl font-bold my-2 text-center">Edit Report</h1>
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-md bg-white p-8 border rounded"
+          className="flex flex-col border border-sky-400 rounded-lg p-2"
         >
+          <label className="text-sm mr-2 text-gray-500">Title</label>
           <input
             type="text"
             name="title"
             value={formData.title}
             onChange={handleChange}
             placeholder="Title"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-2 p-2 border rounded w-full"
             required
           />
+          <label className="text-sm mr-2 text-gray-500">Description</label>
           <textarea
             name="description"
             value={formData.description}
             onChange={handleChange}
             placeholder="Description"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-2 p-2 border rounded w-full"
             rows="4"
             required
           />
+          <label className="text-sm mr-2 text-gray-500">Drug Type</label>
           <input
             type="text"
             name="drugType"
             value={formData.drugType}
             onChange={handleChange}
             placeholder="Drug Type"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-2 p-2 border rounded w-full"
             required
           />
+          <label className="text-sm mr-2 text-gray-500">Location</label>
           <input
             type="text"
             name="location"
             value={formData.location}
             onChange={handleChange}
             placeholder="Location"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-2 p-2 border rounded w-full"
             required
           />
-          <textarea
+          <label className="text-sm mr-2 text-gray-500">
+            Individuals Involved
+          </label>
+          <input
+            type="text"
             name="individualsInvolved"
             value={formData.individualsInvolved}
             onChange={handleChange}
             placeholder="Individuals Involved"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-2 p-2 border rounded w-full"
             rows="3"
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200 w-full"
+            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 transition duration-200 w-full "
           >
             Update Report
           </button>
         </form>
-        {success && <p className="mt-4 text-green-600">{success}</p>}
-        {error && <p className="mt-4 text-red-600">{error}</p>}
       </div>
+      <button
+        onClick={() => {
+          setIsOpen(false);
+        }}
+        className="bg-sky-500 mt-2 text-white px-4 py-1 rounded-md"
+      >
+        Close
+      </button>
     </div>
   );
 };

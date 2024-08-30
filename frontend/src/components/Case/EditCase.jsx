@@ -5,8 +5,7 @@ import { jwtDecode } from "jwt-decode";
 import Navbar from "../NavBar";
 import BackButton from "../BackButton";
 
-const EditCase = () => {
-  const { id } = useParams();
+const EditCase = ({ id, setIsOpen }) => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
@@ -26,18 +25,9 @@ const EditCase = () => {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login"); // Redirect if no token found
-      return;
-    }
 
     const decodedToken = jwtDecode(token);
     setUserRole(decodedToken.role);
-
-    if (decodedToken.role !== "Admin" && decodedToken.role !== "PoliceOfficer") {
-      navigate("/unauthorized"); // Redirect if not Admin or Police Officer
-      return;
-    }
 
     const fetchCaseData = async () => {
       try {
@@ -55,11 +45,14 @@ const EditCase = () => {
 
     const fetchOfficers = async () => {
       try {
-        const response = await axios.get("http://localhost:8003/police-officer", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "http://localhost:8003/police-officer",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         const { data } = response; // Destructure response to get the `data` property
         if (Array.isArray(data.data)) {
           setOfficers(data.data); // Set the officers array
@@ -104,17 +97,18 @@ const EditCase = () => {
         error.response?.data?.message ||
           "An error occurred while updating the case."
       );
+    } finally {
+      setIsOpen(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="rounded-xl p-4">
-        <BackButton />
-        <h1 className="text-4xl font-bold mb-4 text-center">Edit Case</h1>
+    <div className="justify-center items-center px-4">
+      <div className="w-full max-w-md">
+        <h1 className="text-3xl font-bold my-2 text-center">Edit Case</h1>
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-md bg-white p-8 border rounded"
+          className="flex flex-col border border-sky-400 rounded-lg p-2 space-y-3"
         >
           <input
             type="text"
@@ -122,7 +116,7 @@ const EditCase = () => {
             value={formData.title}
             onChange={handleChange}
             placeholder="Title"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-3 p-2 border rounded-sm w-full text-sm"
             required
           />
           <input
@@ -131,7 +125,7 @@ const EditCase = () => {
             value={formData.description}
             onChange={handleChange}
             placeholder="Description"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-3 p-2 border rounded-sm w-full text-sm"
             required
           />
           <input
@@ -140,7 +134,7 @@ const EditCase = () => {
             value={formData.age}
             onChange={handleChange}
             placeholder="Age"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-3 p-2 border rounded-sm w-full text-sm"
             required
           />
           <input
@@ -149,7 +143,7 @@ const EditCase = () => {
             value={formData.profession}
             onChange={handleChange}
             placeholder="Profession"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-3 p-2 border rounded-sm w-full text-sm"
             required
           />
           <input
@@ -158,7 +152,7 @@ const EditCase = () => {
             value={formData.religion}
             onChange={handleChange}
             placeholder="Religion"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-3 p-2 border rounded-sm w-full text-sm"
             required
           />
           <input
@@ -167,7 +161,7 @@ const EditCase = () => {
             value={formData.district}
             onChange={handleChange}
             placeholder="District"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-3 p-2 border rounded-sm w-full text-sm"
             required
           />
           <input
@@ -176,7 +170,7 @@ const EditCase = () => {
             value={formData.drugType}
             onChange={handleChange}
             placeholder="Drug Type"
-            className="mb-4 p-2 border rounded w-full"
+            className="mb-3 p-2 border rounded-sm w-full text-sm"
             required
           />
           {userRole === "Admin" && (
@@ -184,7 +178,7 @@ const EditCase = () => {
               name="officerHandling"
               value={formData.officerHandling}
               onChange={handleChange}
-              className="mb-4 p-2 border rounded w-full"
+              className="mb-3 p-2 border rounded-sm w-full text-sm"
               required
             >
               <option value="">Select Officer</option>
@@ -197,14 +191,22 @@ const EditCase = () => {
           )}
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200 w-full"
+            className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-700 transition duration-200 w-full "
           >
             Update Case
           </button>
         </form>
-        {success && <p className="mt-4 text-green-600">{success}</p>}
-        {error && <p className="mt-4 text-red-600">{error}</p>}
+        {success && <p className="mt-3 text-green-600 text-sm">{success}</p>}
+        {error && <p className="mt-3 text-red-600 text-sm">{error}</p>}
       </div>
+      <button
+          onClick={() => {
+            setIsOpen(false);
+          }}
+          className="bg-sky-500 mt-2 text-white px-4 py-1 rounded-md"
+        >
+          Close
+        </button>
     </div>
   );
 };

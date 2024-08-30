@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
-import { AiOutlineEdit } from "react-icons/ai";
-import { BsInfoCircle } from 'react-icons/bs';
+import { AiOutlineEdit, AiOutlineSearch } from "react-icons/ai";
+import { BsInfoCircle } from "react-icons/bs";
 import { MdOutlineDelete, MdOutlineAddBox } from "react-icons/md";
 import { jwtDecode } from "jwt-decode";
-
+import Popup from "../Popup";
+import ViewUser from "./ViewUser";
+import CreateUser from "./CreateUser";
+import DeleteUser from "./DeleteUser";
+import EditUser from "./EditUser";
+import { FaSearch } from "react-icons/fa";
 
 const UserManagement = () => {
+  const [selectedUser, setSelectedUser] = useState();
+  const [displayType, setDisplayType] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState("All");
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,6 +64,44 @@ const UserManagement = () => {
     setFilteredUsers(filter);
   }, [selectedRole, users]);
 
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = filteredUsers.filter((user) => {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return (
+          getUserName(user).toLowerCase().includes(lowerCaseSearchTerm) ||
+          getUserID(user).toLowerCase().includes(lowerCaseSearchTerm) ||
+          user.email.toLowerCase().includes(lowerCaseSearchTerm) ||
+          user.contactNumber.toString().includes(lowerCaseSearchTerm) ||
+          (user.rank &&
+            user.rank.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (user.station &&
+            user.station.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (user.address &&
+            user.address.toLowerCase().includes(lowerCaseSearchTerm))
+        );
+      });
+      setFilteredUsers(filtered);
+    } else {
+      setFilteredUsers(users);
+    }
+  }, [searchTerm, users]);
+
+  const getUserID = (user) => {
+    switch (user.role) {
+      case "Court":
+        return user.courtID;
+      case "Drug Prevention Authority":
+      case "Rehab Centre":
+        return user.registrationNumber;
+      case "Admin":
+      case "Police Officer":
+        return user.policeID;
+      default:
+        return "Unknown Name";
+    }
+  };
+
   const getUserName = (user) => {
     switch (user.role) {
       case "Court":
@@ -73,10 +121,52 @@ const UserManagement = () => {
     <div className="p-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold mb-4">User Management</h1>
-        <Link to="/admin/user/create">
-          <MdOutlineAddBox className="text-sky-800 text-4xl" />
-        </Link>
+        <div className="flex items-center relative">
+          <FaSearch
+            className="text-2xl text-sky-800 border rounded-r cursor-pointer"
+            onClick={() => {
+              if (isSearchVisible) {
+                setSearchTerm("");
+              }
+              setIsSearchVisible(!isSearchVisible);
+            }}
+          />
+          {isSearchVisible && (
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setSelectedRole("All");
+              }}
+              placeholder="Search..."
+              className="ml-2 p-2 border rounded transition-all duration-300"
+            />
+          )}
+          <MdOutlineAddBox
+            className="text-sky-800 text-4xl ml-4"
+            onClick={() => {
+              setIsOpen(true);
+              setDisplayType("create");
+            }}
+          />
+        </div>
       </div>
+
+      {isOpen && (
+        <Popup>
+          {displayType === "view" && (
+            <ViewUser id={selectedUser} setIsOpen={setIsOpen} />
+          )}
+          {displayType === "edit" && (
+            <EditUser id={selectedUser} setIsOpen={setIsOpen} />
+          )}
+          {displayType === "delete" && (
+            <DeleteUser id={selectedUser} setIsOpen={setIsOpen} />
+          )}
+          {displayType === "create" && <CreateUser setIsOpen={setIsOpen} />}
+        </Popup>
+      )}
 
       <div className="mb-4">
         <label htmlFor="roleFilter" className="mr-2">
@@ -107,8 +197,11 @@ const UserManagement = () => {
             <tr className="bg-gray-200">
               <th className="border border-slate-600 rounded-md">Name</th>
               <th className="border border-slate-600 rounded-md">Email</th>
-              <th className="border border-slate-600 rounded-md">Contact Number</th>
+              <th className="border border-slate-600 rounded-md">
+                Contact Number
+              </th>
               <th className="border border-slate-600 rounded-md">Role</th>
+              <th className="border border-slate-600 rounded-md">ID</th>
               <th className="border border-slate-600 rounded-md">Actions</th>
             </tr>
           </thead>
@@ -124,20 +217,40 @@ const UserManagement = () => {
                 <td className="border border-slate-700 rounded-md text-center">
                   {user.contactNumber}
                 </td>
+
                 <td className="border border-slate-700 rounded-md text-center">
                   {user.role}
                 </td>
                 <td className="border border-slate-700 rounded-md text-center">
+                  {getUserID(user)}
+                </td>
+                <td className="border border-slate-700 rounded-md text-center">
                   <div className="flex justify-center gap-x-4">
-                    <Link to={`/admin/user/userDetails/${user._id}`}>
-                      <BsInfoCircle className="text-2xl text-green-800" />
-                    </Link>
-                    <Link to={`/admin/user/edit/${user._id}`}>
-                      <AiOutlineEdit className="text-2xl text-yellow-600" />
-                    </Link>
-                    <Link to={`/admin/user/delete/${user._id}`}>
-                      <MdOutlineDelete className="text-2xl text-red-600" />
-                    </Link>
+                    <BsInfoCircle
+                      className="text-2xl text-green-800"
+                      onClick={() => {
+                        setIsOpen(true);
+                        setSelectedUser(user._id);
+                        setDisplayType("view");
+                      }}
+                    />
+
+                    <AiOutlineEdit
+                      className="text-2xl text-yellow-600"
+                      onClick={() => {
+                        setIsOpen(true);
+                        setSelectedUser(user._id);
+                        setDisplayType("edit");
+                      }}
+                    />
+                    <MdOutlineDelete
+                      className="text-2xl text-red-600"
+                      onClick={() => {
+                        setIsOpen(true);
+                        setSelectedUser(user._id);
+                        setDisplayType("delete");
+                      }}
+                    />
                   </div>
                 </td>
               </tr>

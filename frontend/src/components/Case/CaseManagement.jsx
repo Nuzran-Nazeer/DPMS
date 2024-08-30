@@ -4,12 +4,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineEdit } from "react-icons/ai";
 import { BsInfoCircle } from "react-icons/bs";
 import { MdOutlineAddBox, MdOutlineDelete } from "react-icons/md";
-import { FaShareSquare } from "react-icons/fa";
+import { FaShareSquare , FaSearch } from "react-icons/fa";
 import { jwtDecode } from "jwt-decode";
+import Popup from "../Popup";
+import CreateCase from "./CreateCase";
+import DeleteCase from "./DeleteCase";
+import EditCase from "./EditCase";
+import ViewCase from "./ViewCase";
 
 const CaseManagement = () => {
+  const [selectedCase, setSelectedCase] = useState();
+  const [displayType, setDisplayType] = useState("");
   const [cases, setCases] = useState([]);
-  const [officers, setOfficers] = useState([]); // New state to store officer data
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [officers, setOfficers] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [filterCategory, setFilterCategory] = useState("");
   const [filterValue, setFilterValue] = useState("");
@@ -17,11 +26,11 @@ const CaseManagement = () => {
   const [role, setRole] = useState("");
   const [selectedCaseId, setSelectedCaseId] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const navigate = useNavigate();
 
-  useEffect(() => {
-    console.log("fetching", cases);
-  }, [cases]);
+  useEffect(() => {}, [cases]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -31,7 +40,6 @@ const CaseManagement = () => {
     }
 
     const decodedToken = jwtDecode(token);
-    console.log("token", decodedToken);
     const { role, id } = decodedToken;
     setRole(role);
 
@@ -47,7 +55,6 @@ const CaseManagement = () => {
     }
 
     const fetchData = async () => {
-      console.log(role, "roll");
       setLoading(true);
       const baseUrl = "http://localhost:8003/case";
       let endpoint;
@@ -89,7 +96,6 @@ const CaseManagement = () => {
         setOfficers(officerData);
         retrieveCases();
       } catch (error) {
-        console.error("Error fetching cases or users:", error);
       } finally {
         setLoading(false);
       }
@@ -97,6 +103,29 @@ const CaseManagement = () => {
 
     fetchData();
   }, [role]);
+
+  useEffect(() => {
+    if (searchTerm) {
+      const filtered = filteredCases.filter((caseItem) => {
+        const lowerCaseSearchTerm = searchTerm.toLowerCase();
+        return (
+          caseItem.caseNo.toString().includes(lowerCaseSearchTerm) ||
+          (caseItem.title && caseItem.title.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (caseItem.description && caseItem.description.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (caseItem.age && caseItem.age.toString().includes(lowerCaseSearchTerm)) ||
+          (caseItem.profession && caseItem.profession.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (caseItem.religion && caseItem.religion.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (caseItem.district && caseItem.district.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (caseItem.officerHandling && caseItem.officerHandling.toLowerCase().includes(lowerCaseSearchTerm)) ||
+          (caseItem.drugType && caseItem.drugType.toLowerCase().includes(lowerCaseSearchTerm))
+        );
+      });
+      setFilteredCases(filtered);
+      setFilterCategory("");
+    } else {
+      setFilteredCases(cases);
+    }
+  }, [searchTerm, cases]);
 
   useEffect(() => {
     if (filterCategory && filterValue) {
@@ -113,9 +142,12 @@ const CaseManagement = () => {
     }
   }, [filterCategory, filterValue, cases]);
 
+  
+
   const handleCategoryChange = (e) => {
     setFilterCategory(e.target.value);
     setFilterValue("");
+    setIsSearchVisible("");
   };
 
   const handleShareClick = (caseId) => {
@@ -148,7 +180,6 @@ const CaseManagement = () => {
         alert("Error sharing the case.");
       }
     } catch (error) {
-      console.error("Error sharing case:", error);
       alert("Error sharing the case.");
     } finally {
       setShowDropdown(false);
@@ -166,12 +197,51 @@ const CaseManagement = () => {
     <div className="p-4">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold mb-4">Case List</h1>
-        {(role === "Admin" || role === "PoliceOfficer") && (
-          <Link to="/case/create">
-            <MdOutlineAddBox className="text-sky-800 text-4xl" />
-          </Link>
-        )}
+        <div className="flex items-center relative">
+          <FaSearch
+            className="text-2xl text-sky-800 border rounded-r cursor-pointer"
+            onClick={() => {
+              if (isSearchVisible) {
+                setSearchTerm("");
+              }
+              setIsSearchVisible(!isSearchVisible);
+            }}
+          />
+          {isSearchVisible && (
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search..."
+              className="ml-2 p-2 border rounded transition-all duration-300"
+            />
+          )}
+
+          {(role === "Admin" || role === "PoliceOfficer") && (
+            <MdOutlineAddBox
+              className="text-sky-800 text-4xl ml-4"
+              onClick={() => {
+                setIsOpen(true);
+                setDisplayType("create");
+              }}
+            />
+          )}
+        </div>
       </div>
+      {isOpen && (
+        <Popup>
+          {displayType === "view" && (
+            <ViewCase id={selectedCase} setIsOpen={setIsOpen} />
+          )}
+          {displayType === "edit" && (
+            <EditCase id={selectedCase} setIsOpen={setIsOpen} />
+          )}
+          {displayType === "delete" && (
+            <DeleteCase id={selectedCase} setIsOpen={setIsOpen} />
+          )}
+          {displayType === "create" && <CreateCase setIsOpen={setIsOpen} />}
+        </Popup>
+      )}
 
       {role !== "PoliceOfficer" && (
         <div className="mb-4">
@@ -262,19 +332,34 @@ const CaseManagement = () => {
                   {caseItem.status}
                 </td>
                 <td className="border border-slate-700 rounded-md text-center">
-                  <div className="relative flex justify-center gap-x-4">
-                    <Link to={`/case/caseDetails/${caseItem._id}`}>
-                      <BsInfoCircle className="text-2xl text-green-800" />
-                    </Link>
+                  <div className="flex justify-center gap-x-4">
+                    <BsInfoCircle
+                      className="text-2xl text-green-800"
+                      onClick={() => {
+                        setIsOpen(true);
+                        setSelectedCase(caseItem._id);
+                        setDisplayType("view");
+                      }}
+                    />
                     {(role === "PoliceOfficer" || role === "Admin") && (
-                      <Link to={`/case/edit/${caseItem._id}`}>
-                        <AiOutlineEdit className="text-2xl text-yellow-600" />
-                      </Link>
+                      <AiOutlineEdit
+                        className="text-2xl text-yellow-600"
+                        onClick={() => {
+                          setIsOpen(true);
+                          setSelectedCase(caseItem._id);
+                          setDisplayType("edit");
+                        }}
+                      />
                     )}
                     {role === "Admin" && (
-                      <Link to={`/case/delete/${caseItem._id}`}>
-                        <MdOutlineDelete className="text-2xl text-red-600" />
-                      </Link>
+                      <MdOutlineDelete
+                        className="text-2xl text-red-600"
+                        onClick={() => {
+                          setIsOpen(true);
+                          setSelectedCase(caseItem._id);
+                          setDisplayType("delete");
+                        }}
+                      />
                     )}
                     {(role === "PoliceOfficer" || role === "Admin") && (
                       <FaShareSquare

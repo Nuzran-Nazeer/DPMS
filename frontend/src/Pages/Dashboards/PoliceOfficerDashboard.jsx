@@ -41,7 +41,7 @@ const PoliceOfficerDashboard = () => {
         <div className="p-8">
           {renderSection()}
         </div>
-        <Footer/>
+        {/* <Footer/> */}
       </div>
       
     </div>

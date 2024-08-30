@@ -5,19 +5,14 @@ import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from "react-router-dom";
 import BackButton from "../BackButton";
 
-const ViewCase = () => {
+const ViewCase = ({ id, setIsOpen }) => {
   const [caseData, setCaseData] = useState({});
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState();
-  const { id } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login"); // Redirect if no token found
-      return;
-    }
 
     const decodedToken = jwtDecode(token);
     const { role, userId } = decodedToken;
@@ -43,38 +38,51 @@ const ViewCase = () => {
   }, [id]);
 
   return (
-    <div className="flex justify-center items-center min-h-screen p-4">
+    <div className="justify-center items-center px-4">
       <div>
-        <BackButton />
-        <h1 className="text-3xl my-4 text-center">Case Details</h1>
+        <h1 className="text-3xl font-bold my-2 text-center">Case Details</h1>
         {loading ? (
           <div>Loading...</div>
         ) : (
-          <div className="flex flex-col border-2 border-sky-400 rounded-xl w-fit p-4">
-            <span className="text-xl mr-4 text-gray-500">Case No.</span>
+          <div className="flex flex-col border-2 border-sky-400 rounded-xl w-fit p-4 text-sm">
+            <span className="font-semibold mr-2 text-gray-600">Case No.</span>
             <span>{caseData.caseNo}</span>
-            <span className="text-xl mr-4 text-gray-500">Title</span>
+            <span className="font-semibold mr-2 text-gray-600">Title</span>
             <span>{caseData.title}</span>
-            <span className="text-xl mr-4 text-gray-500">Description</span>
+            <span className="font-semibold mr-2 text-gray-600">
+              Description
+            </span>
             <span>{caseData.description}</span>
-            <span className="text-xl mr-4 text-gray-500">Age</span>
+            <span className="font-semibold mr-2 text-gray-600">Age</span>
             <span>{caseData.age}</span>
-            <span className="text-xl mr-4 text-gray-500">Profession</span>
+            <span className="font-semibold mr-2 text-gray-600">Profession</span>
             <span>{caseData.profession}</span>
-            <span className="text-xl mr-4 text-gray-500">Religion</span>
+            <span className="font-semibold mr-2 text-gray-600">Religion</span>
             <span>{caseData.religion}</span>
-            <span className="text-xl mr-4 text-gray-500">District</span>
+            <span className="font-semibold mr-2 text-gray-600">District</span>
             <span>{caseData.district}</span>
-            <span className="text-xl mr-4 text-gray-500">Officer Handling</span>
+            <span className="font-semibold mr-2 text-gray-600">
+              Officer Handling
+            </span>
             <span>{caseData.officerHandling}</span>
-            <span className="text-xl mr-4 text-gray-500">Drug Type</span>
+            <span className="font-semibold mr-2 text-gray-600">Drug Type</span>
             <span>{caseData.drugType}</span>
-            <span className="text-xl mr-4 text-gray-500">Status</span>
+            <span className="font-semibold mr-2 text-gray-600">Status</span>
             <span>{caseData.status}</span>
-            <span className="text-xl mr-4 text-gray-500">Create Time</span>
+            <span className="font-semibold mr-2 text-gray-600">
+              Create Time
+            </span>
             <span>{new Date(caseData.createdAt).toString()}</span>
           </div>
         )}
+        <button
+          onClick={() => {
+            setIsOpen(false);
+          }}
+          className="bg-sky-500 mt-1 text-white px-4 py-1 rounded-md"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
