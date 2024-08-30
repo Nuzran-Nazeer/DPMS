@@ -3,7 +3,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
-const CreateCase = () => {
+const CreateCase = ({ setIsOpen }) => {
   const [formData, setFormData] = useState({
     caseNo: "",
     title: "",
@@ -12,7 +12,7 @@ const CreateCase = () => {
     profession: "",
     religion: "",
     district: "",
-    officerHandling: "", // Make sure this is initialized
+    officerHandling: "",
     drugType: "",
   });
 
@@ -99,7 +99,7 @@ const CreateCase = () => {
         profession: "",
         religion: "",
         district: "",
-        officerHandling: "", // Reset after submission
+        officerHandling: "",
         drugType: "",
       });
     } catch (error) {
@@ -111,25 +111,24 @@ const CreateCase = () => {
       } else {
         setError("An error occurred while creating the case.");
       }
+    } finally {
+      setIsOpen(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen">
-      <div className="rounded-xl p-4">
-        <h1 className="text-4xl font-bold mb-4 text-center">Create New Case</h1>
-        <form
-          onSubmit={handleSubmit}
-          className="w-full max-w-md bg-white p-8 border rounded"
-        >
-          {error && <p className="text-red-500 mb-4">{error}</p>}
+    <div className="justify-center items-center  px-4 py-1">
+      <div className="w-full max-w-md">
+        <h1 className="text-3xl font-bold my-2 text-center">Create Case</h1>
+        <form onSubmit={handleSubmit} className="flex flex-col border border-sky-400 rounded-lg p-2 space-y-3">
+          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
           <input
             type="text"
             name="caseNo"
             value={formData.caseNo}
             onChange={handleChange}
             placeholder="Case No"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           <input
@@ -138,7 +137,7 @@ const CreateCase = () => {
             value={formData.title}
             onChange={handleChange}
             placeholder="Title"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           <input
@@ -147,7 +146,7 @@ const CreateCase = () => {
             value={formData.description}
             onChange={handleChange}
             placeholder="Description"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           <input
@@ -156,7 +155,7 @@ const CreateCase = () => {
             value={formData.age}
             onChange={handleChange}
             placeholder="Age"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           <input
@@ -165,7 +164,7 @@ const CreateCase = () => {
             value={formData.profession}
             onChange={handleChange}
             placeholder="Profession"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           <input
@@ -174,7 +173,7 @@ const CreateCase = () => {
             value={formData.religion}
             onChange={handleChange}
             placeholder="Religion"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           <input
@@ -183,7 +182,7 @@ const CreateCase = () => {
             value={formData.district}
             onChange={handleChange}
             placeholder="District"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           {isAdmin && (
@@ -191,7 +190,7 @@ const CreateCase = () => {
               name="officerHandling"
               value={formData.officerHandling}
               onChange={handleChange}
-              className="mb-4 p-2 border rounded w-full"
+              className="p-2 border rounded w-full text-sm"
               required
             >
               <option value="">Select Officer</option>
@@ -208,17 +207,25 @@ const CreateCase = () => {
             value={formData.drugType}
             onChange={handleChange}
             placeholder="Drug Type"
-            className="mb-4 p-2 border rounded w-full"
+            className="p-2 border rounded w-full text-sm"
             required
           />
           <button
             type="submit"
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-700 transition duration-200 w-full"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200 w-full "
           >
             Create Case
           </button>
         </form>
       </div>
+      <button
+        onClick={() => {
+          setIsOpen(false);
+        }}
+        className="bg-sky-500 mt-2 text-white px-4 py-1 rounded-md"
+      >
+        Close
+      </button>
     </div>
   );
 };

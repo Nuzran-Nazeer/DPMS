@@ -1,10 +1,9 @@
-import React from 'react'
-import RegistrationForm from '../RegistrationForm'
+import React from "react";
+import RegistrationForm from "../RegistrationForm";
 
-const CreateUser = () => {
-  return (
-    <RegistrationForm/>
-  )
-}
+const CreateUser = ({ setIsOpen }) => {
+  return <RegistrationForm setIsOpen={setIsOpen} />;
+  
+};
 
-export default CreateUser
+export default CreateUser;

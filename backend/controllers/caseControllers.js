@@ -106,10 +106,6 @@ export const getAllCases = async (req, res) => {
     } else {
       return res.status(403).json({ message: "Access denied" });
     }
-    console.log("User ID:", user.userId);
-    console.log("Role:", user.role);
-
-    console.log("Fetched Cases:", cases);
     res.json({ data: cases });
   } catch (error) {
     console.error("Error fetching cases:", error);
@@ -319,3 +315,5 @@ export const getCasesByOfficerHandling = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
