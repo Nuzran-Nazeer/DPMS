@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import config from "../../config";
 import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineEdit } from "react-icons/ai";
 import { BsInfoCircle } from "react-icons/bs";
@@ -30,8 +31,6 @@ const CaseManagement = () => {
 
   const navigate = useNavigate();
 
-  useEffect(() => {}, [cases]);
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -56,7 +55,7 @@ const CaseManagement = () => {
 
     const fetchData = async () => {
       setLoading(true);
-      const baseUrl = "http://localhost:8003/case";
+      const baseUrl = `${config.API_URL}/auth/case`;
       let endpoint;
       switch (role) {
         case "PoliceOfficer":
@@ -85,7 +84,7 @@ const CaseManagement = () => {
 
       try {
         const [officersResponse] = await Promise.all([
-          axios.get("http://localhost:8003/police-officer", {
+          axios.get(`${config.API_URL}/auth/police-officer`, {
             headers: {
               Authorization: `Bearer ${token}`,
             },
@@ -165,7 +164,7 @@ const CaseManagement = () => {
 
     try {
       const response = await axios.post(
-        `http://localhost:8003/case/share/${selectedCaseId}`,
+        `http://localhost:8003/auth/case/share/${selectedCaseId}`,
         { sharedWith: role },
         {
           headers: {
@@ -243,7 +242,7 @@ const CaseManagement = () => {
         </Popup>
       )}
 
-      {role !== "PoliceOfficer" && (
+      {/* {role !== "PoliceOfficer" && ( */}
         <div className="mb-4">
           <label htmlFor="filterCategory" className="mr-2">
             Filter by:
@@ -255,7 +254,9 @@ const CaseManagement = () => {
             className="p-2 border rounded"
           >
             <option value="">Select a Category</option>
-            <option value="officerHandling">Officer Handling</option>
+            {role !== "PoliceOfficer" && (
+      <option value="officerHandling">Officer Handling</option>
+    )}
             <option value="drugType">Drug Type</option>
             <option value="age">Age</option>
             <option value="religion">Religion</option>
@@ -287,7 +288,7 @@ const CaseManagement = () => {
             </select>
           )}
         </div>
-      )}
+      {/* )} */}
 
       {loading ? (
         <div>Loading....</div>
@@ -341,7 +342,7 @@ const CaseManagement = () => {
                         setDisplayType("view");
                       }}
                     />
-                    {(role === "PoliceOfficer" || role === "Admin") && (
+                    {(role === "PoliceOfficer" || role === "Admin" || role === "Court") && (
                       <AiOutlineEdit
                         className="text-2xl text-yellow-600"
                         onClick={() => {
@@ -361,7 +362,7 @@ const CaseManagement = () => {
                         }}
                       />
                     )}
-                    {(role === "PoliceOfficer" || role === "Admin") && (
+                    {(role === "PoliceOfficer" || role === "Admin" || role === "DrugPreventionAuthority") && (
                       <FaShareSquare
                         className="text-2xl text-blue-600 cursor-pointer"
                         onClick={() => handleShareClick(caseItem._id)}

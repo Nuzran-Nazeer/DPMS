@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import config from "../../config";
 
 const EditReport = ({ id, setIsOpen }) => {
   const [formData, setFormData] = useState({
@@ -13,12 +14,13 @@ const EditReport = ({ id, setIsOpen }) => {
 
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const fetchReportData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8003/report/${id}`, {
+        const response = await axios.get(`${config.API_URL}/auth/report/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setFormData(response.data);
@@ -37,23 +39,30 @@ const EditReport = ({ id, setIsOpen }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
     setSuccess("Report Updated successfully!");
+    const token = localStorage.getItem("token");
     try {
-      const response = await axios.put(
-        `http://localhost:8003/report/${id}`,
-        formData
-      );
-      console.log(response.data);
+      await axios.put(`${config.API_URL}/auth/report/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(formData);
+      setSuccess("Report updated successfully");
+      setTimeout(() => {
+        setLoading(false);
+        setIsOpen(false); // Close modal
+        setSuccess(''); // Clear success message
+      }, 5000);
     } catch (error) {
       console.error("Error updating report:", error);
       setError(
         error.response?.data?.message ||
           "An error occurred while updating the report."
       );
-    } finally {
-      setIsOpen(false);
-    }
+    } 
   };
 
   return (
@@ -122,6 +131,7 @@ const EditReport = ({ id, setIsOpen }) => {
           >
             Update Report
           </button>
+          {success && <p className="text-green-500 mb-2">{success}</p>}
         </form>
       </div>
       <button

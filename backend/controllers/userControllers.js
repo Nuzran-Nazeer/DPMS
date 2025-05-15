@@ -9,7 +9,7 @@ import { Admin } from "../model/adminModel.js";
 
 export const getUsers = async (request, response) => {
     try {
-        const policeOfficers = await PoliceOfficer.find();
+        const policeOfficers = await PoliceOfficer.find().select('first_name last_name policeID email contactNumber role ');
         const drugPreventionAuthorities = await DrugPreventionAuthority.find();
         const courts = await Court.find();
         const rehabCentres = await RehabCentre.find();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
+import config from "../../config";
 
 const CreateCase = ({ setIsOpen }) => {
   const [formData, setFormData] = useState({
@@ -18,6 +19,7 @@ const CreateCase = ({ setIsOpen }) => {
 
   const [officers, setOfficers] = useState([]);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
   const navigate = useNavigate();
@@ -35,20 +37,22 @@ const CreateCase = ({ setIsOpen }) => {
     if (decodedToken.role === "Admin") {
       setIsAdmin(true);
 
-      axios
-        .get("http://localhost:8003/police-officer", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
+      const fetchOfficers = async () => {
+        try {
+          const response = await axios.get(`${config.API_URL}/auth/police-officer`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           console.log("Fetched Officers:", response.data.data); // Debugging: Log the officers data
           setOfficers(response.data.data);
-        })
-        .catch((error) => {
+        } catch (error) {
           console.error("Error fetching officers:", error);
           setError("An error occurred while fetching officers.");
-        });
+        }
+      };
+
+      fetchOfficers();
     } else if (decodedToken.role === "PoliceOfficer") {
       setFormData((prevData) => ({
         ...prevData,
@@ -76,13 +80,9 @@ const CreateCase = ({ setIsOpen }) => {
     try {
       console.log("Form Data:", formData); // Debugging: Log the formData
 
-      const submissionData = {
-        ...formData,
-      };
-
       const response = await axios.post(
-        "http://localhost:8003/case/create-case",
-        submissionData,
+        `${config.API_URL}/auth/case/create-case`,
+        formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -102,6 +102,11 @@ const CreateCase = ({ setIsOpen }) => {
         officerHandling: "",
         drugType: "",
       });
+      setSuccess("Case created successfully.");
+      setTimeout(() => {
+        setIsOpen(false); // Close modal
+        setSuccess(''); // Clear success message
+      }, 5000);
     } catch (error) {
       console.error("Error during case creation:", error); // Debugging: Log any errors
       if (error.response && error.response.status === 409) {
@@ -111,9 +116,7 @@ const CreateCase = ({ setIsOpen }) => {
       } else {
         setError("An error occurred while creating the case.");
       }
-    } finally {
-      setIsOpen(false);
-    }
+    } 
   };
 
   return (
@@ -121,7 +124,7 @@ const CreateCase = ({ setIsOpen }) => {
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-bold my-2 text-center">Create Case</h1>
         <form onSubmit={handleSubmit} className="flex flex-col border border-sky-400 rounded-lg p-2 space-y-3">
-          {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+          
           <input
             type="text"
             name="caseNo"
@@ -217,6 +220,8 @@ const CreateCase = ({ setIsOpen }) => {
             Create Case
           </button>
         </form>
+        {success && <p className="mt-3 text-green-600 text-sm">{success}</p>}
+
       </div>
       <button
         onClick={() => {

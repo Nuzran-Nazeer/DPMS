@@ -85,7 +85,7 @@ export const updateReport = async (request, response) => {
       });
     }
     return response.status(200).send({
-      message: "Report updated successfully",
+      message: "Report updated successfully", updateReport: updatedReport
     });
   } catch (error) {
     console.log(error.message);

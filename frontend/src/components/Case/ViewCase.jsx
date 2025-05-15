@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import config from "../../config";
 import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from "react-router-dom";
@@ -21,7 +22,7 @@ const ViewCase = ({ id, setIsOpen }) => {
     const fetchCase = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8003/case/${id}`, {
+        const response = await axios.get(`${config.API_URL}/auth/case/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

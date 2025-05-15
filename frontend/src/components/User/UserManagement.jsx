@@ -11,6 +11,7 @@ import CreateUser from "./CreateUser";
 import DeleteUser from "./DeleteUser";
 import EditUser from "./EditUser";
 import { FaSearch } from "react-icons/fa";
+import config from "../../config";
 
 const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState();
@@ -41,8 +42,10 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8003/admin/users", {
-          headers: { Authorization: `Bearer ${token}` },
+        const response = await axios.get(`${config.API_URL}/auth/user`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
         setUsers(response.data.data);
         setFilteredUsers(response.data.data);
