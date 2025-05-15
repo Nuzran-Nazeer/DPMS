@@ -50,4 +50,4 @@ const rehabCentreSchema = new mongoose.Schema(
     }
 )
 
-export const RehabCentre = new mongoose.model('RehabCentre', rehabCentreSchema);
+export const RehabCentre = mongoose.model('RehabCentre', rehabCentreSchema);

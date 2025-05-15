@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import config from "../../config";
 
 const EditUser = ({ id, setIsOpen }) => {
   const [userData, setUserData] = useState({});
-  const [responseMessage, setResponseMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
 
@@ -11,14 +12,11 @@ const EditUser = ({ id, setIsOpen }) => {
     const fetchUser = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `http://localhost:8003/admin/user/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${config.API_URL}/auth/user/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setUserData(response.data.data);
       } catch (error) {
         console.log(error);
@@ -36,20 +34,25 @@ const EditUser = ({ id, setIsOpen }) => {
     setUserData({ ...userData, [name]: value });
   };
 
-  const handleUpdateUser = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      await axios.put(`http://localhost:8003/admin/user/${id}`, userData, {
+      await axios.put(`${config.API_URL}/auth/user/${id}`, userData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setResponseMessage("User updated successfully");
+      setSuccessMessage("User updated successfully");
+      setTimeout(() => {
+        setIsOpen(false); // Close modal
+        setSuccessMessage(''); // Clear success message
+      }, 5000);
     } catch (error) {
       setResponseMessage("Error updating user");
       console.log(error);
     } finally {
-      setIsOpen(false);
+      setLoading(false);
     }
   };
 
@@ -173,7 +176,7 @@ const EditUser = ({ id, setIsOpen }) => {
           ) : (
             <form
               className="flex flex-col border border-sky-400 rounded-lg p-2"
-              onSubmit={handleUpdateUser}
+              onSubmit={handleSubmit}
             >
               {/* Role Specific Fields */}
 
@@ -207,8 +210,8 @@ const EditUser = ({ id, setIsOpen }) => {
                 Update User
               </button>
 
-              {responseMessage && (
-                <p className="mt-2 text-green-600 text-sm">{responseMessage}</p>
+              {successMessage && (
+                <p className="mt-2 text-green-600 text-sm">{successMessage}</p>
               )}
             </form>
           )}

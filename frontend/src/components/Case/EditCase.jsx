@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "../NavBar";
 import BackButton from "../BackButton";
+import config from "../../config";
 
 const EditCase = ({ id, setIsOpen }) => {
   const navigate = useNavigate();
@@ -22,6 +23,7 @@ const EditCase = ({ id, setIsOpen }) => {
   const [success, setSuccess] = useState(null);
   const [userRole, setUserRole] = useState("");
   const [officers, setOfficers] = useState([]); // State to hold list of officers
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -30,8 +32,9 @@ const EditCase = ({ id, setIsOpen }) => {
     setUserRole(decodedToken.role);
 
     const fetchCaseData = async () => {
+      setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8003/case/${id}`, {
+        const response = await axios.get(`${config.API_URL}/auth/case/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -45,14 +48,11 @@ const EditCase = ({ id, setIsOpen }) => {
 
     const fetchOfficers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8003/police-officer",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${config.API_URL}/auth/police-officer`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         const { data } = response; // Destructure response to get the `data` property
         if (Array.isArray(data.data)) {
           setOfficers(data.data); // Set the officers array
@@ -76,30 +76,30 @@ const EditCase = ({ id, setIsOpen }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     setError(null);
     setSuccess(null);
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.put(
-        `http://localhost:8003/case/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setSuccess("Case updated successfully!");
+      await axios.put(`${config.API_URL}/auth/case/${id}`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setSuccess("Case updated successfully");
+      setTimeout(() => {
+        setIsOpen(false); // Close modal
+        setSuccess(''); // Clear success message
+      }, 5000);
     } catch (error) {
       console.error("Error updating case:", error);
       setError(
         error.response?.data?.message ||
           "An error occurred while updating the case."
       );
-    } finally {
-      setIsOpen(false);
-    }
+    } 
+    
   };
 
   return (
@@ -201,7 +201,7 @@ const EditCase = ({ id, setIsOpen }) => {
       </div>
       <button
           onClick={() => {
-            setIsOpen(false);
+            
           }}
           className="bg-sky-500 mt-2 text-white px-4 py-1 rounded-md"
         >

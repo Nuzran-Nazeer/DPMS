@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import config from "../../config";
 
 const CreateReport = ({ setIsOpen }) => {
   const [formData, setFormData] = useState({
@@ -31,7 +32,7 @@ const CreateReport = ({ setIsOpen }) => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8003/report/create-report",
+        `${config.API_URL}/auth/report/create-report`,
         formData
       );
       setSuccess("Report submitted successfully!");
@@ -44,11 +45,15 @@ const CreateReport = ({ setIsOpen }) => {
         evidence: "",
         individualsInvolved: "",
       });
+      setSuccess("Report created successfully");
+      setTimeout(() => {
+        setLoading(false);
+        setIsOpen(false); // Close modal
+        setSuccess(''); // Clear success message
+      }, 5000);
     } catch (err) {
       setError("Failed to submit report: " + err.message);
-    } finally {
-      setLoading(false);
-      setIsOpen(false);
+    
     }
   };
 
@@ -60,8 +65,7 @@ const CreateReport = ({ setIsOpen }) => {
           onSubmit={handleSubmit}
           className="flex flex-col border border-sky-400 rounded-lg p-2"
         >
-          {error && <p className="text-red-500">{error}</p>}
-          {success && <p className="text-green-500 mb-2">{success}</p>}
+          
           <input
             type="text"
             name="title"
@@ -129,6 +133,8 @@ const CreateReport = ({ setIsOpen }) => {
           >
             {loading ? "Submitting..." : "Submit Report"}
           </button>
+          {error && <p className="text-red-500">{error}</p>}
+          {success && <p className="text-green-500 mb-2">{success}</p>}
         </form>
       </div>
       <button

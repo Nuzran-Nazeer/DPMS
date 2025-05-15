@@ -2,30 +2,34 @@ import React, { useState } from "react";
 import BackButton from "../BackButton";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import config from "../../config";
 
 const DeleteCase = ({ id, setIsOpen }) => {
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  const handleDeleteCase = () => {
+  const handleDeleteCase = async () => {
     const token = localStorage.getItem("token");
 
     setLoading(true);
-    axios
-      .delete(`http://localhost:8003/case/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        setLoading(false);
-        console.log("Case deleted successfully");
-        setIsOpen(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.log("Error deleting case:", error);
-      });
+    try {
+      await axios
+        .delete(`${config.API_URL}/auth/case/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      setLoading(false);
+      setSuccess("Case deleted successfully");
+      setTimeout(() => {
+        setIsOpen(false); // Close modal
+        setSuccess(''); // Clear success message
+      }, 5000);
+    } catch (error) {
+      setLoading(false);
+      console.log("Error deleting case:", error);
+    }
   };
 
   return (
@@ -47,9 +51,18 @@ const DeleteCase = ({ id, setIsOpen }) => {
             >
               Yes, Delete it
             </button>
+            {success && <p className="mt-3 text-green-600 text-sm">{success}</p>}
           </>
         )}
       </div>
+      <button
+        onClick={() => {
+          setIsOpen(false);
+        }}
+        className="bg-sky-500 mt-2 text-white px-4 py-2 rounded-md"
+      >
+        Close
+      </button>
     </div>
   );
 };

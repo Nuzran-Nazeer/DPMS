@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import config from "../../config";
 import { useParams } from "react-router-dom";
 import BackButton from "../BackButton";
 import { jwtDecode } from "jwt-decode";
@@ -14,14 +15,11 @@ const ViewUser = ({ id, setIsOpen }) => {
     const fetchUser = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `http://localhost:8003/admin/user/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await axios.get(`${config.API_URL}/auth/user/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
         setUserData(response.data.data);
       } catch (error) {
         console.log(error);

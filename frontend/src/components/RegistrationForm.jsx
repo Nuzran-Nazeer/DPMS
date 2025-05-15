@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios'
+import config from "../config";
 
 const RegistrationForm = () => {
   const [role, setRole] = useState('');
@@ -20,7 +21,8 @@ const RegistrationForm = () => {
     station: '',
   });
 
-  const [responseMessage, setResponseMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -91,17 +93,17 @@ const RegistrationForm = () => {
 
     // Send formData to the backend based on role
     try {
-      const response = await axios.post(`http://localhost:8003/auth/register`, roleSpecificData, {
+      const response = await axios.post(`${config.API_URL}/auth/register`, roleSpecificData, {
         headers: {
           'Content-Type': 'application/json',
         },
       });
 
-      setResponseMessage(response.data.message || 'Registration successful! Please log in.');
+      setSuccessMessage(response.data.message || 'Registration successful! Please log in.');
       setTimeout(() => navigate('/login'), 2000);
     } catch (error) {
       console.log("Error during registration:", error.response?.data?.message || error.message);
-      setResponseMessage(error.response?.data?.message || 'Registration failed. Please try again.');
+      setErrorMessage(error.response?.data?.message || 'Registration failed. Please try again.');
     }
   };
 
@@ -171,9 +173,13 @@ const RegistrationForm = () => {
           </button>
         </form>
       )}
-      {responseMessage && (
+      {successMessage && (
         <div className="mt-4 p-4 border rounded bg-green-100 text-green-800">
-          {responseMessage}
+          {successMessage}
+        </div>
+      )}{errorMessage && (
+        <div className="mt-4 p-4 border rounded bg-red-100 text-red-800">
+          {errorMessage}
         </div>
       )}
     </div>

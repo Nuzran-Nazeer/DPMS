@@ -1,31 +1,35 @@
 import React, { useState } from "react";
 import axios from "axios";
+import config from "../../config";
 
 
+// const [errorMessage, setErrorMessage] = useState("");
 
 const DeleteUser = ({ id, setIsOpen }) => {
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
   const token = localStorage.getItem("token");
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     setLoading(true);
-    axios
-      .delete(`http://localhost:8003/admin/user/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        setLoading(false);
-        console.log("User deleted successfully");
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.log("Error deleting user:", error);
-      })
-      .finally(() => {
-        setIsOpen(false);
-      });
+    try {
+      await axios
+        .delete(`${config.API_URL}/auth/user/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+      setLoading(false);
+      console.log("User deleted successfully");
+      setSuccessMessage("User deleted successfully")
+      setTimeout(() => {
+        setIsOpen(false); // Close modal
+        setSuccessMessage(''); // Clear success message
+      }, 5000);
+    } catch (error) {
+      setLoading(false);
+      console.log("Error deleting user:", error);
+    }
   };
 
   return (
@@ -41,6 +45,10 @@ const DeleteUser = ({ id, setIsOpen }) => {
         >
           Yes, Delete it
         </button>
+              {successMessage && (
+                <p className="mt-2 text-green-600 text-sm">{successMessage}</p>
+              )}
+              
       </div>
       <button
         onClick={() => {

@@ -11,6 +11,7 @@ import CreateReport from "./CreateReport";
 
 import { MdOutlineAddBox, MdOutlineDelete } from "react-icons/md";
 import { jwtDecode } from "jwt-decode";
+import config from "../../config";
 
 const ReportManagement = () => {
   const [selectedReport, setSelectedReport] = useState();
@@ -21,7 +22,9 @@ const ReportManagement = () => {
   const [filteredReports, setFilteredReports] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [reportData, setReportData] = useState({});
+  const [selectedReportId, setSelectedReportId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [role, setRole] = useState("");
@@ -50,7 +53,7 @@ const ReportManagement = () => {
     }
     const fetchData = async () => {
       setLoading(true);
-      const baseUrl = "http://localhost:8003/report";
+      const baseUrl = `${config.API_URL}/auth/report`;
       const endpoint =
         role === "Court" ? `${baseUrl}/fetchShared` : `${baseUrl}`;
       try {
@@ -77,7 +80,7 @@ const ReportManagement = () => {
         setLoading(true);
         try {
           const response = await axios.get(
-            `http://localhost:8003/report/${selectedReport}`,
+            `${config.API_URL}/auth/report/${selectedReport}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -216,13 +219,15 @@ const ReportManagement = () => {
     );
   };
 
-  const handleShare = async (id) => {
+  const handleShare = async (role) => {
     try {
       const response = await axios.post(
-        `http://localhost:8003/report/share/${id}`,
-        {},
+        `${config.API_URL}/auth/report/share/${selectedReportId}`,
+        { sharedWith: role },
         {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         }
       );
 
@@ -234,7 +239,19 @@ const ReportManagement = () => {
     } catch (error) {
       console.error("Error sharing case:", error);
       alert("Error sharing the case.");
+    } finally {
+      setShowDropdown(false);
     }
+  };
+
+  const handleShareClick = (reportId) => {
+    setSelectedReportId(reportId);
+    setShowDropdown(!showDropdown);
+  };
+
+  const handleDropdownItemClick = (role) => {
+    handleShare(role);
+    setShowDropdown(false);
   };
 
   return (
@@ -248,7 +265,7 @@ const ReportManagement = () => {
               if (isSearchVisible) {
                 setSearchTerm("");
               }
-              setIsSearchVisible(!isSearchVisible); 
+              setIsSearchVisible(!isSearchVisible);
             }}
           />
           {isSearchVisible && (
@@ -260,14 +277,15 @@ const ReportManagement = () => {
               className="ml-2 p-2 border rounded transition-all duration-300"
             />
           )}
-
-          <MdOutlineAddBox
-            className="text-sky-800 text-4xl ml-4"
-            onClick={() => {
-              setIsOpen(true);
-              setDisplayType("create");
-            }}
-          />
+          {role === "Admin" && (
+            <MdOutlineAddBox
+              className="text-sky-800 text-4xl ml-4"
+              onClick={() => {
+                setIsOpen(true);
+                setDisplayType("create");
+              }}
+            />
+          )}
         </div>
       </div>
       {isOpen && (
@@ -384,11 +402,24 @@ const ReportManagement = () => {
                         />
                       </>
                     )}
-                    {(role === "PoliceOfficer" || role === "Admin") && (
+                    {(role === "PoliceOfficer" || role === "Admin" || role === "DrugPreventionAuthority") && (
                       <FaShareSquare
                         className="text-2xl text-blue-600 cursor-pointer"
-                        onClick={() => handleShare(reportItem._id)}
+                        onClick={() => handleShareClick(reportItem._id)}
                       />
+                    )}
+
+                    {showDropdown && selectedReportId === reportItem._id && (
+                      <div className="absolute right-0 mt-8 w-48 bg-white border rounded shadow-md z-10">
+                        <ul>
+                          <li
+                            className="p-2 hover:bg-gray-200 cursor-pointer"
+                            onClick={() => handleDropdownItemClick("Court")}
+                          >
+                            Share with Court
+                          </li>
+                        </ul>
+                      </div>
                     )}
                   </div>
                 </td>
