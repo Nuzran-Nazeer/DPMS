@@ -1,25 +1,26 @@
 import jwt from "jsonwebtoken";
 
+/* Middleware function to verify JSON Web Token (JWT)*/
 export const verifyToken = async (request, response, next) => {
     try {
-        let token = request.header("Authorization");
-
+        let token = request.header("Authorization"); /*retrieve the token from the Authorization header*/
+        /*Check if the token is missing*/
         if (!token) {
             console.log("Token missing in header");
-            return response.status(403).send("Access Denied");
+            return response.status(403).send("Access Denied"); /*Respond with a 403 Forbidden status*/
         }
-
+        /*Check if the token starts with "Bearer " and extract the token value*/
         if (token.startsWith("Bearer ")) {
-            token = token.slice(7, token.length).trimLeft();
+            token = token.slice(7, token.length).trimLeft(); /* Remove "Bearer " prefix*/
         }
 
-        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        const verified = jwt.verify(token, process.env.JWT_SECRET); /*Verify the token using the secret key from environment variables*/
 
-        request.user = verified;
-        next();
+        request.user = verified; /*Attach the verified user information to the request object*/
+        next(); /*Call the next middleware or route handler*/
     } catch (error) {
         console.log("Token verification failed:", error.message);
-        response.status(500).send({message: error.message});
+        response.status(500).send({message: error.message}); /*Respond with a 500 Internal Server Error status and the error message*/
     }
 };
 

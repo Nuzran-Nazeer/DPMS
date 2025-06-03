@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import Sidebar from '../../components/sideBar';
 import Navbar from '../../components/NavBar';
 import CaseManagement from '../../components/Case/CaseManagement';
-import Footer from '../../components/Footer';
 import { jwtDecode } from 'jwt-decode';
 
 const RehabCentreDashboard = () => {
@@ -37,7 +36,6 @@ const RehabCentreDashboard = () => {
         <div className="p-8">
           {renderSection()}
         </div>
-        {/* <Footer/> */}
       </div>
     </div>
   );

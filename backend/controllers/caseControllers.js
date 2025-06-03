@@ -85,7 +85,9 @@ export const createCase = async (request, response) => {
     };
 
     const createdcase = await Case.create(newCaseRecord);
-    return response.status(201).send(createdcase);
+    return response
+      .status(200)
+      .json({ message: "Case updated successfully", case: createdcase });
   } catch (error) {
     console.log(error.message);
     response.status(500).send({ message: error.message });

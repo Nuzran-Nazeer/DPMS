@@ -1,23 +1,28 @@
 import React, { useState } from "react";
 import axios from "axios";
+import config from "../../config";
 
 const DeleteReport = ({ id, setIsOpen }) => {
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const handleDeleteReport = () => {
     const token = localStorage.getItem("token");
 
     setLoading(true);
     axios
-      .delete(`http://localhost:8003/report/${id}`, {
+      .delete(`${config.API_URL}/auth/report/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then(() => {
+        setSuccess("Report deleted successfully");
+      setTimeout(() => {
         setLoading(false);
-        console.log("Report deleted successfully");
-        setIsOpen(false);
+        setIsOpen(false); // Close modal
+        setSuccess(''); // Clear success message
+      }, 5000);
       })
       .catch((error) => {
         setLoading(false);
@@ -28,7 +33,7 @@ const DeleteReport = ({ id, setIsOpen }) => {
   return (
     <div className="p-4">
       <h1 className="text-3xl font-bold my-2 text-center">Delete Report</h1>
-      {loading && "Loading...."}
+      
       <div className="flex flex-col items-center border-2 border-sky-400 rounded-xl p my-1 x-auto">
         <h3 className="py-1">Are you sure you want to delete this report?</h3>
 
@@ -38,6 +43,7 @@ const DeleteReport = ({ id, setIsOpen }) => {
         >
           Yes, Delete it
         </button>
+        {success && <p className="text-green-500 mb-2">{success}</p>}
       </div>
       <button
         onClick={() => {
