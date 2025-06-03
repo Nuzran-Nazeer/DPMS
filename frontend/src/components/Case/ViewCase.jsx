@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../config/api';
 import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { Link, useNavigate } from "react-router-dom";
@@ -10,6 +10,7 @@ const ViewCase = ({ id, setIsOpen }) => {
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState();
   const navigate = useNavigate();
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -21,14 +22,11 @@ const ViewCase = ({ id, setIsOpen }) => {
     const fetchCase = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`http://localhost:8003/case/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setCaseData(response.data);
+        const response = await api.get(`/case/${id}`);
+        setCaseData(response.data.data);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching case:", error);
+        setError("An error occurred while fetching the case.");
       } finally {
         setLoading(false);
       }

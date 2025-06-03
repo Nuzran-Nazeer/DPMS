@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from '../../config/api';
 import { useParams } from "react-router-dom";
 import BackButton from "../BackButton";
 import { jwtDecode } from "jwt-decode";
@@ -8,23 +8,18 @@ import Navbar from "../NavBar";
 const ViewUser = ({ id, setIsOpen }) => {
   const [userData, setUserData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     const fetchUser = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `http://localhost:8003/admin/user/${id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await api.get(`/admin/user/${id}`);
         setUserData(response.data.data);
       } catch (error) {
-        console.log(error);
+        console.error("Error fetching user:", error);
+        setError("An error occurred while fetching the user data.");
       } finally {
         setLoading(false);
       }

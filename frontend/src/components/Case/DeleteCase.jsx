@@ -1,31 +1,25 @@
 import React, { useState } from "react";
 import BackButton from "../BackButton";
-import axios from "axios";
+import api from '../../config/api';
 import { useNavigate } from "react-router-dom";
 
 const DeleteCase = ({ id, setIsOpen }) => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleDeleteCase = () => {
+  const handleDeleteCase = async () => {
     const token = localStorage.getItem("token");
 
     setLoading(true);
-    axios
-      .delete(`http://localhost:8003/case/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        setLoading(false);
-        console.log("Case deleted successfully");
-        setIsOpen(false);
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.log("Error deleting case:", error);
-      });
+    try {
+      await api.delete(`/case/${id}`);
+      setLoading(false);
+      console.log("Case deleted successfully");
+      setIsOpen(false);
+    } catch (error) {
+      setLoading(false);
+      console.log("Error deleting case:", error);
+    }
   };
 
   return (

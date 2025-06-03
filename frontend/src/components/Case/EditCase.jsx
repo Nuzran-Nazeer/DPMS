@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from '../../config/api';
 import { useParams, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Navbar from "../NavBar";
@@ -31,12 +31,8 @@ const EditCase = ({ id, setIsOpen }) => {
 
     const fetchCaseData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8003/case/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setFormData(response.data);
+        const response = await api.get(`/case/${id}`);
+        setFormData(response.data.data);
       } catch (error) {
         console.error("Error fetching case data:", error);
         setError("An error occurred while fetching the case data.");
@@ -45,21 +41,8 @@ const EditCase = ({ id, setIsOpen }) => {
 
     const fetchOfficers = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:8003/police-officer",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const { data } = response; // Destructure response to get the `data` property
-        if (Array.isArray(data.data)) {
-          setOfficers(data.data); // Set the officers array
-        } else {
-          console.error("Expected an array of officers, but got:", data.data);
-          setError("Invalid data format received for officers.");
-        }
+        const response = await api.get('/police-officer');
+        setOfficers(response.data.data);
       } catch (error) {
         console.error("Error fetching officers:", error);
         setError("An error occurred while fetching the officers.");
@@ -81,15 +64,7 @@ const EditCase = ({ id, setIsOpen }) => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await axios.put(
-        `http://localhost:8003/case/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.put(`/case/${id}`, formData);
       setSuccess("Case updated successfully!");
     } catch (error) {
       console.error("Error updating case:", error);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from '../../config/api';
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
@@ -35,20 +35,7 @@ const CreateCase = ({ setIsOpen }) => {
     if (decodedToken.role === "Admin") {
       setIsAdmin(true);
 
-      axios
-        .get("http://localhost:8003/police-officer", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then((response) => {
-          console.log("Fetched Officers:", response.data.data); // Debugging: Log the officers data
-          setOfficers(response.data.data);
-        })
-        .catch((error) => {
-          console.error("Error fetching officers:", error);
-          setError("An error occurred while fetching officers.");
-        });
+      fetchOfficers();
     } else if (decodedToken.role === "PoliceOfficer") {
       setFormData((prevData) => ({
         ...prevData,
@@ -58,6 +45,16 @@ const CreateCase = ({ setIsOpen }) => {
       navigate("/unauthorized");
     }
   }, [navigate]);
+
+  const fetchOfficers = async () => {
+    try {
+      const response = await api.get('/police-officer');
+      setOfficers(response.data.data);
+    } catch (error) {
+      console.error("Error fetching officers:", error);
+      setError("An error occurred while fetching officers.");
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -80,15 +77,7 @@ const CreateCase = ({ setIsOpen }) => {
         ...formData,
       };
 
-      const response = await axios.post(
-        "http://localhost:8003/case/create-case",
-        submissionData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await api.post('/case', submissionData);
 
       console.log("Response:", response.data); // Debugging: Log the response data
       setFormData({

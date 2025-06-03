@@ -11,6 +11,7 @@ import CreateUser from "./CreateUser";
 import DeleteUser from "./DeleteUser";
 import EditUser from "./EditUser";
 import { FaSearch } from "react-icons/fa";
+import api from '../../config/api';
 
 const UserManagement = () => {
   const [selectedUser, setSelectedUser] = useState();
@@ -22,6 +23,7 @@ const UserManagement = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [isSearchVisible, setIsSearchVisible] = useState(false);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,13 +43,12 @@ const UserManagement = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get("http://localhost:8003/admin/users", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await api.get('/admin/users');
         setUsers(response.data.data);
         setFilteredUsers(response.data.data);
       } catch (error) {
-        console.error("Error fetching users:", error);
+        console.error('Error fetching users:', error);
+        setError('Failed to fetch users');
       } finally {
         setLoading(false);
       }

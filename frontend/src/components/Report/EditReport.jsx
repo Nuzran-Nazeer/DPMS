@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import api from '../../config/api';
 
 const EditReport = ({ id, setIsOpen }) => {
   const [formData, setFormData] = useState({
@@ -15,16 +15,13 @@ const EditReport = ({ id, setIsOpen }) => {
   const [success, setSuccess] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const fetchReportData = async () => {
       try {
-        const response = await axios.get(`http://localhost:8003/report/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setFormData(response.data);
+        const response = await api.get(`/report/${id}`);
+        setFormData(response.data.data);
       } catch (error) {
         console.error("Error fetching report data:", error);
-        setError("An error occurred while fetching the case data.");
+        setError("An error occurred while fetching the report data.");
       }
     };
 
@@ -40,10 +37,7 @@ const EditReport = ({ id, setIsOpen }) => {
     setError(null);
     setSuccess("Report Updated successfully!");
     try {
-      const response = await axios.put(
-        `http://localhost:8003/report/${id}`,
-        formData
-      );
+      const response = await api.put(`/report/${id}`, formData);
       console.log(response.data);
     } catch (error) {
       console.error("Error updating report:", error);

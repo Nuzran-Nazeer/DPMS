@@ -1,31 +1,22 @@
 import React, { useState } from "react";
-import axios from "axios";
-
-
+import api from '../../config/api';
 
 const DeleteUser = ({ id, setIsOpen }) => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
 
-  const handleDeleteUser = () => {
+  const handleDeleteUser = async () => {
     setLoading(true);
-    axios
-      .delete(`http://localhost:8003/admin/user/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        setLoading(false);
-        console.log("User deleted successfully");
-      })
-      .catch((error) => {
-        setLoading(false);
-        console.log("Error deleting user:", error);
-      })
-      .finally(() => {
-        setIsOpen(false);
-      });
+    try {
+      await api.delete(`/admin/user/${id}`);
+      setLoading(false);
+      console.log("User deleted successfully");
+    } catch (error) {
+      setLoading(false);
+      console.log("Error deleting user:", error);
+    } finally {
+      setIsOpen(false);
+    }
   };
 
   return (

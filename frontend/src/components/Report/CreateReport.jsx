@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import axios from "axios";
+import api from '../../config/api';
 
 const CreateReport = ({ setIsOpen }) => {
   const [formData, setFormData] = useState({
@@ -30,10 +30,7 @@ const CreateReport = ({ setIsOpen }) => {
     setSuccess(null);
 
     try {
-      const response = await axios.post(
-        "http://localhost:8003/report/create-report",
-        formData
-      );
+      const response = await api.post('/report', formData);
       setSuccess("Report submitted successfully!");
       setFormData({
         title: "",

@@ -11,6 +11,7 @@ import CreateCase from "./CreateCase";
 import DeleteCase from "./DeleteCase";
 import EditCase from "./EditCase";
 import ViewCase from "./ViewCase";
+import api from '../../config/api';
 
 const CaseManagement = () => {
   const [selectedCase, setSelectedCase] = useState();
@@ -27,6 +28,7 @@ const CaseManagement = () => {
   const [selectedCaseId, setSelectedCaseId] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState(null);
 
   const navigate = useNavigate();
 
@@ -56,46 +58,19 @@ const CaseManagement = () => {
 
     const fetchData = async () => {
       setLoading(true);
-      const baseUrl = "http://localhost:8003/case";
-      let endpoint;
-      switch (role) {
-        case "PoliceOfficer":
-          endpoint = `${baseUrl}/policehandler/${id}`;
-          break;
-        case "Court":
-        case "RehabCentre":
-          endpoint = `${baseUrl}/sharedcase/${role}`;
-          break;
-        default:
-          endpoint = `${baseUrl}`;
-          break;
-      }
-
-      const retrieveCases = () => {
-        axios
-          .get(`${endpoint}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-          .then((res) => {
-            setCases(res.data.data);
-          });
-      };
-
       try {
-        const [officersResponse] = await Promise.all([
-          axios.get("http://localhost:8003/police-officer", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }),
-        ]);
-
-        const officerData = officersResponse.data.data;
-        setOfficers(officerData);
-        retrieveCases();
+        const baseUrl = '/case';
+        let endpoint = baseUrl;
+        
+        if (role === 'Police') {
+          endpoint = `${baseUrl}/policehandler/${id}`;
+        }
+        
+        const response = await api.get(endpoint);
+        setCases(response.data.data);
       } catch (error) {
+        console.error('Error fetching cases:', error);
+        setError('Failed to fetch cases');
       } finally {
         setLoading(false);
       }

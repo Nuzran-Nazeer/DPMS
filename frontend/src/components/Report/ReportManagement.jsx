@@ -11,6 +11,7 @@ import CreateReport from "./CreateReport";
 
 import { MdOutlineAddBox, MdOutlineDelete } from "react-icons/md";
 import { jwtDecode } from "jwt-decode";
+import api from '../../config/api';
 
 const ReportManagement = () => {
   const [selectedReport, setSelectedReport] = useState();
@@ -27,6 +28,8 @@ const ReportManagement = () => {
   const [role, setRole] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const [error, setError] = useState("");
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
@@ -50,19 +53,15 @@ const ReportManagement = () => {
     }
     const fetchData = async () => {
       setLoading(true);
-      const baseUrl = "http://localhost:8003/report";
-      const endpoint =
-        role === "Court" ? `${baseUrl}/fetchShared` : `${baseUrl}`;
       try {
-        await axios
-          .get(endpoint, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((res) => {
-            setReports(res.data.data);
-          });
+        const baseUrl = '/report';
+        const endpoint = role === 'Court' ? `${baseUrl}/fetchShared` : baseUrl;
+        
+        const response = await api.get(endpoint);
+        setReports(response.data.data);
       } catch (error) {
-        console.error("Error fetching reports:", error);
+        console.error('Error fetching reports:', error);
+        setError('Failed to fetch reports');
       } finally {
         setLoading(false);
       }
@@ -76,14 +75,7 @@ const ReportManagement = () => {
       const fetchReport = async () => {
         setLoading(true);
         try {
-          const response = await axios.get(
-            `http://localhost:8003/report/${selectedReport}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
+          const response = await api.get(`/report/${selectedReport}`);
           setReportData(response.data);
         } catch (error) {
           console.log(error);
@@ -93,7 +85,7 @@ const ReportManagement = () => {
       };
       fetchReport();
     }
-  }, [isOpen, displayType, selectedReport, token]);
+  }, [isOpen, displayType, selectedReport]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -218,13 +210,7 @@ const ReportManagement = () => {
 
   const handleShare = async (id) => {
     try {
-      const response = await axios.post(
-        `http://localhost:8003/report/share/${id}`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+      const response = await api.post(`/report/share/${id}`);
 
       if (response.data.message === "Case shared successfully") {
         alert("Case shared successfully!");
@@ -234,6 +220,16 @@ const ReportManagement = () => {
     } catch (error) {
       console.error("Error sharing case:", error);
       alert("Error sharing the case.");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post('/report', formData);
+      // ... rest of the existing code ...
+    } catch (error) {
+      // ... existing error handling ...
     }
   };
 

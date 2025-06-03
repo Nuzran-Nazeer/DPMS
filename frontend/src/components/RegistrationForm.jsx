@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'
+import api from '../config/api';
 
 const RegistrationForm = () => {
   const [role, setRole] = useState('');
@@ -91,7 +91,7 @@ const RegistrationForm = () => {
 
     // Send formData to the backend based on role
     try {
-      const response = await axios.post(`http://localhost:8003/auth/register`, roleSpecificData, {
+      const response = await api.post('/auth/register', roleSpecificData, {
         headers: {
           'Content-Type': 'application/json',
         },
